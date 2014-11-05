@@ -1,0 +1,56 @@
+<svg version="1.1" baseProfile="full" xmlns="http://www.w3.org/2000/svg"
+     width="300" height="25" viewbox="0 0 300 25">
+
+     <style>
+        #bg {
+            fill: #E2EFF3;
+            stroke: #000;
+        }
+        text {
+            font-size: 13;
+            stroke: none;
+            font-family: sans;
+            font-weight: bold;
+        }
+
+        .left rect {
+            fill: #543019;
+            stroke: none;
+        }
+        .left text {
+            fill: #fff;
+        }
+
+        .progress rect {
+            fill: #7ECAEE;
+            stroke: none;
+        }
+
+        .progress text {
+            fill: #000;
+        }
+     </style>
+
+    <defs>
+        <clippath id="leftclip" >
+            <rect x="0" y="0" width="100" height="25" />
+        </clippath>
+
+        <clippath id="progressclip">
+            <rect x="100" y="0" width="{{ 200 * progress }}" height="25" />
+        </clippath>
+    </defs>
+
+    <rect id="bg" width="100%" height="100%" rx="6" ry="6" />
+
+    <g class="left">
+        <rect width="100%" height="100%" rx="6" ry="6" clip-path="url(#leftclip)" />
+        <text x="8" y="17">NaNoWriMo</text>
+    </g>
+
+    <g class="progress">
+        <rect width="100%" height="100%" rx="6" ry="6" clip-path="url(#progressclip)" />
+        <text x="115" y="17">{{ words }} words</text>
+    </g>
+
+</svg>
