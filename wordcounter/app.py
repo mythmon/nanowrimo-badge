@@ -12,6 +12,9 @@ from wordcounter.cache import Cache
 p = configargparse.ArgParser(default_config_files=['wordcounter.conf'])
 p.add('--gh-token', required=True, env_var='GH_TOKEN', help='GitHub API Token.')
 p.add('--gh-api-url', default='https://api.github.com', env_var='GH_API_URL', help='GitHub API URL')
+p.add('--port', default=5000, type=int, env_var='PORT', help='Port to bind to.')
+p.add('--host', default='0.0.0.0', env_var='HOST', help='Host to bind to.')
+p.add('--debug', default=False, action='store_true', env_var='DEBUG', help='Enable debug mode.')
 options = None
 
 
@@ -63,4 +66,4 @@ def api(url):
 
 if __name__ == '__main__':
     options = p.parse_args()
-    app.run(debug=True)
+    app.run(host=options.host, port=options.port, debug=options.debug)
