@@ -4,10 +4,17 @@
      <style>
         #bg {
             fill: #E2EFF3;
-            stroke: #000;
+            stroke: none;
         }
+
+        #outline {
+            fill: none;
+            stroke: #000;
+            stroke-width: 2px;
+        }
+
         text {
-            font-size: 13;
+            font-size: 14px;
             stroke: none;
             font-family: sans;
             font-weight: bold;
@@ -31,26 +38,18 @@
         }
      </style>
 
-    <defs>
-        <clippath id="leftclip" >
-            <rect x="0" y="0" width="100" height="25" />
-        </clippath>
-
-        <clippath id="progressclip">
-            <rect x="100" y="0" width="{{ 200 * progress }}" height="25" />
-        </clippath>
-    </defs>
-
-    <rect id="bg" width="100%" height="100%" rx="6" ry="6" />
+    <rect id="bg" width="100%" height="100%" />
 
     <g class="left">
-        <rect width="100%" height="100%" rx="6" ry="6" clip-path="url(#leftclip)" />
-        <text x="8" y="17">NaNoWriMo</text>
+        <rect width="100" height="100%" />
+        <text x="5" y="18">NaNoWriMo</text>
     </g>
 
     <g class="progress">
-        <rect width="100%" height="100%" rx="6" ry="6" clip-path="url(#progressclip)" />
-        <text x="115" y="17">{{ words }} words</text>
+        <rect x="100" width="{{ 200 * progress }}" height="100%" />
+        <text x="115" y="18">{{ words }} words</text>
     </g>
+
+    <rect id="outline" width="100%" height="100%" />
 
 </svg>
