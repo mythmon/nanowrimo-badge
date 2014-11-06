@@ -1,6 +1,7 @@
 import base64
 import json
 import re
+from fnmatch import fnmatch
 
 import configargparse
 import requests
@@ -31,29 +32,56 @@ def badge(user, repo):
 
 @cache(key='{0}/{1}::wordcount', timeout=600)
 def get_word_count(user, repo):
-    total = 0
-    goal = 50000
-
-    root = api('/repos/{0}/{1}/git/trees/master'.format(user, repo))
-    for t in root['tree']:
-        if t['path'] == 'ch':
-            next_url = t['url']
-
-    subfolder = api(next_url)
-    for t in subfolder['tree']:
-        if t['path'].endswith('.mkd'):
-            f = api(t['url'])
-            assert f['encoding'] == 'base64'
-            content = base64.decodestring(f['content'].encode())
-            total += count_words(content.decode())
-
+    endpoint = '/repos/{0}/{1}/git/trees/master'.format(user, repo)
+    config = get_repo_config(endpoint)
+    chapter_blob = config.get('chapterBlob', '*.txt')
+    total = sum(count_words(get_blob_contents(blob_url))
+                for blob_url
+                in get_blob_urls_from_glob(endpoint, chapter_blob))
+    goal = config.get('goal', 50000)
     return total, goal
+
+
+def get_repo_config(tree_url):
+    data = api(tree_url)
+    content = None
+    for o in data['tree']:
+        if o['type'] == 'blob' and o['path'] == '.nanowrimo':
+            content = get_blob_contents(o['url'])
+            break
+    if content is None:
+        return {}
+    else:
+        return json.loads(content)
+
+
+def get_blob_urls_from_glob(tree_url, glob):
+    if '/' in glob:
+        glob_head, glob_tail = glob.split('/', 1)
+    else:
+        glob_head, glob_tail = glob, None
+
+    data = api(tree_url)
+    for o in data['tree']:
+        if fnmatch(o['path'], glob_head):
+            if glob_tail is None and o['type'] == 'blob':
+                yield o['url']
+            elif glob_tail is not None and o['type'] == 'tree':
+                yield from get_blob_urls_from_glob(o['url'], glob_tail)
+
+
+def get_blob_contents(blob_url):
+    blob = api(blob_url)
+    assert blob['encoding'] == 'base64'
+    content = base64.decodestring(blob['content'].encode())
+    return content.decode()
 
 
 def count_words(story):
     return len(list(filter(None, re.split(r"[^\w']", story))))
 
 
+@cache(key='GET {0}', timeout=30)
 def api(url):
     if not re.match(r'^https?://', url):
         url = options.gh_api_url + url
